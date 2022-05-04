@@ -159,14 +159,6 @@ public class XINApplicationContext {
                 }
             }
 
-            // 单例情况下考虑缓存升级并获取缓存中的实例
-            if (beanDefinition.getScope().equals("singleton")) {
-                instance = getSingletonObject(beanName);
-                // 将二级缓存删除并升级到一级缓存
-                singletonObjects.put(beanName, instance);
-                earlySingletonObjects.remove(beanName);
-            }
-
             // Aware回调
             if (instance instanceof BeanNameAware) {
                 ((BeanNameAware)instance).setBeanName(beanName);
@@ -189,6 +181,14 @@ public class XINApplicationContext {
             // beanPostProcessor#postProcessAfterInitialization
             for (BeanPostProcessor beanPostProcessor : beanPostProcessorList) {
                 instance = beanPostProcessor.postProcessAfterInitialization(instance, beanName);
+            }
+
+            // 单例情况下考虑缓存升级并获取缓存中的实例
+            if (beanDefinition.getScope().equals("singleton")) {
+                instance = getSingletonObject(beanName);
+                // 将二级缓存删除并升级到一级缓存
+                singletonObjects.put(beanName, instance);
+                earlySingletonObjects.remove(beanName);
             }
 
             return instance;
